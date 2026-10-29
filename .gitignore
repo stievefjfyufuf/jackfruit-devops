@@ -1,0 +1,61 @@
+# Dependencies and generated artifacts
+node_modules/
+dist/
+coverage/
+work/
+outputs/
+*.log
+
+# Local environment and package registry credentials
+.env
+.env.*
+!.env.example
+.envrc
+.npmrc
+.netrc
+.git-credentials
+
+# Persistent databases, including SQLite WAL/SHM sidecars
+data/
+*.sqlite*
+*.db*
+
+# Backups, database exports and generated archives
+backup/
+backups/
+*.bak
+*.backup
+*.dump
+*.sql
+*.sql.gz
+*.zip
+*.7z
+*.tar
+*.tar.gz
+*.tgz
+
+# SSH/private keys and local cloud credentials
+.ssh/
+.aws/
+.azure/
+.gcloud/
+id_rsa*
+id_dsa*
+id_ecdsa*
+id_ed25519*
+*.pem
+*.key
+*.p12
+*.pfx
+credentials/
+secrets/
+credentials*.json
+credentials*.yml
+credentials*.yaml
+secrets*.json
+secrets*.yml
+secrets*.yaml
+tokens*.json
+tokens*.yml
+tokens*.yaml
+*service-account*.json
