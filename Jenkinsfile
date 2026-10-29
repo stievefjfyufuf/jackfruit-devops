@@ -62,7 +62,11 @@ pipeline {
     stage('Deploy') {
       when {
         expression {
-          params.DEPLOY_ENABLED && params.DEPLOY_BRANCH == 'main' &&
+          def causes = currentBuild.getBuildCauses()
+          // Require positive, exclusive cause evidence; mixed/unknown causes fail closed.
+          def polling = causes && causes.every { it._class == 'hudson.triggers.SCMTrigger$SCMTriggerCause' }
+          def manual = causes && causes.every { it._class == 'hudson.model.Cause$UserIdCause' }
+          (polling || (manual && params.DEPLOY_ENABLED)) && params.DEPLOY_BRANCH == 'main' &&
             env.CHECKED_OUT_MAIN == 'true' && env.BUILT_APP_IMAGE?.trim()
         }
       }
@@ -91,7 +95,7 @@ pipeline {
     }
   }
   post {
-    success { echo 'All requested pipeline stages passed. Deployment is gated by branch and DEPLOY_ENABLED.' }
+    success { echo 'All requested pipeline stages passed. Deployment requires verified main and SCM polling or an explicitly enabled manual build.' }
     failure { echo 'Pipeline failed. Later stages were skipped. Inspect console logs; no production volume is deleted.' }
     always {
       archiveArtifacts artifacts: 'dist/**', allowEmptyArchive: true, fingerprint: true
