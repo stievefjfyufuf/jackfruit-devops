@@ -37,3 +37,7 @@ See `outputs/VERIFICATION.md` for the final command results and limitations. Scr
 ## Risks
 
 Docker/Compose, Jenkins and Ubuntu deployment could not execute on this Windows host because Docker and Jenkins are absent and no VPS credentials were supplied. Their files received source review only. No remote resources were created. No authentication is intentionally included; default loopback binding and SSH tunnel instructions suit the demo. Deployment failure does not automatically roll back an image; retained tags and backup instructions are documented. One SQLite app deployment is supported.
+
+## DevSecOps staging update
+
+Issue: user-requested DevSecOps audit, linked to REQ-003 / AC-003. `Jenkinsfile.security` is a Windows-only staging pipeline using `windows-security`, `bat`, full-history verification, locked installation, tests, and a Critical npm-audit gate. `.github/workflows/security.yml` provides a Linux full checkout plus pinned Semgrep 1.75.0, Gitleaks 8.21.2, and JSON npm-audit evidence. `audit-evidence/` is ignored. No production Jenkinsfile, credential, environment file, deployment, or external service was changed.
