@@ -3,7 +3,7 @@ name: Security
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, devsecops-security-audit]
 
 permissions:
   contents: read
@@ -41,6 +41,15 @@ jobs:
           mkdir -p audit-evidence
           docker run --rm -v "$GITHUB_WORKSPACE:/src" -w /src zricethezav/gitleaks:v8.21.2 \
             detect --source . --redact --report-format json --report-path audit-evidence/gitleaks.json --exit-code 1
+
+      - name: IaC scan - Trivy Dockerfile (pinned)
+        run: npm run security:iac
+
+      - name: IaC scan - KICS Docker Compose (pinned)
+        run: |
+          mkdir -p audit-evidence/kics
+          docker run --rm -v "$GITHUB_WORKSPACE:/path" checkmarx/kics:v2.2.1 \
+            scan -p /path/docker-compose.yml -o /path/audit-evidence/kics --report-formats json --fail-on high,critical
 
       - name: npm audit SCA
         shell: bash

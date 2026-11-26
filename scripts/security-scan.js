@@ -42,6 +42,18 @@ if (task === 'secrets') {
   process.exit(result.status ?? 2);
 }
 
+if (task === 'iac') {
+  // Trivy config scans local IaC without starting an application or container.
+  // Docker Compose needs KICS/Checkov support and is covered by the companion
+  // CI command documented in DEVSECOPS_PROGRESS_FINAL.md.
+  const result = docker(
+    'aquasec/trivy:0.76.2',
+    ['config', '--severity', 'HIGH,CRITICAL', '--exit-code', '1', '--format', 'json', '--output', 'audit-evidence/trivy-iac.json', '.'],
+    'trivy-iac-console.txt'
+  );
+  process.exit(result.status ?? 2);
+}
+
 if (task === 'sca') {
   const npm = process.platform === 'win32' ? 'cmd.exe' : 'npm';
   const npmArgs = process.platform === 'win32'

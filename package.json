@@ -16,6 +16,7 @@
     "healthcheck": "node scripts/healthcheck.js",
     "security:sast": "node scripts/security-scan.js sast",
     "security:secrets": "node scripts/security-scan.js secrets",
+    "security:iac": "node scripts/security-scan.js iac",
     "security:sca": "node scripts/security-scan.js sca"
   },
   "dependencies": {

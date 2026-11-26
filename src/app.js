@@ -127,6 +127,13 @@ export function createApp(db) {
     }).immediate();
     res.status(201).json(transaction);
   });
+  // Known API resources reject unsafe/unsupported verbs explicitly. Unknown
+  // routes remain 404 so clients cannot enumerate resources from a 405 reply.
+  const methodNotAllowed = allow => (req, res) => res.status(405).set('Allow', allow).json({ error: 'HTTP method not allowed.' });
+  app.use('/api/products/:id', methodNotAllowed('GET, HEAD, PUT, DELETE'));
+  app.use('/api/products', methodNotAllowed('GET, HEAD, POST'));
+  app.use('/api/transactions', methodNotAllowed('GET, HEAD, POST'));
+  app.use('/api/health', methodNotAllowed('GET, HEAD'));
   app.use('/api', (req, res) => res.status(404).json({ error: 'API endpoint not found.' }));
   app.use(express.static(fileURLToPath(new URL('../public', import.meta.url))));
   app.use((req, res) => res.status(404).type('text').send('Page not found.'));

@@ -38,6 +38,25 @@ See `outputs/VERIFICATION.md` for the final command results and limitations. Scr
 
 Docker/Compose, Jenkins and Ubuntu deployment could not execute on this Windows host because Docker and Jenkins are absent and no VPS credentials were supplied. Their files received source review only. No remote resources were created. No authentication is intentionally included; default loopback binding and SSH tunnel instructions suit the demo. Deployment failure does not automatically roll back an image; retained tags and backup instructions are documented. One SQLite app deployment is supported.
 
+## CR-001 implementation update
+
+CR-001 / REQ-003 / AC-003 adds a focused API response-header test, an audit
+branch trigger for the existing GitHub security workflow, weekly Dependabot
+configuration, private disclosure guidance, and evidence/demo documentation.
+`npm.cmd test` passed with 12 tests and 0 failures on 2026-11-26. Docker,
+GitHub Actions, and Jenkins were not rerun; their prior supplied evidence is
+preserved and their unavailable local execution remains explicitly limited.
+
+## CR-002 implementation update
+
+CR-002 adds explicit 405/`Allow` responses for known API resources, one
+localhost-only negative/boundary test, pinned Trivy Dockerfile scanning, pinned
+KICS Docker Compose scanning in CI, and an OWASP evidence matrix. `npm.cmd
+test` passed 13 tests with 0 failures. Local Trivy 0.76.2 scanned Dockerfile
+with 20 successes and no HIGH/CRITICAL failure. Compose scanning remains
+blocked locally because Docker/KICS is unavailable; no remote CI run was
+triggered.
+
 ## DevSecOps staging update
 
 Issue: user-requested DevSecOps audit, linked to REQ-003 / AC-003. `Jenkinsfile.security` is a Windows-only staging pipeline using `windows-security`, `bat`, full-history verification, locked installation, tests, and a Critical npm-audit gate. `.github/workflows/security.yml` provides a Linux full checkout plus pinned Semgrep 1.75.0, Gitleaks 8.21.2, and JSON npm-audit evidence. `audit-evidence/` is ignored. No production Jenkinsfile, credential, environment file, deployment, or external service was changed.
