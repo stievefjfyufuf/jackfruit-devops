@@ -92,6 +92,21 @@ evidence below before calling it PASS.
    Get-Content docs/software-engineering/changes/CR-001.md
    ```
 
+9. Demonstrate release governance without creating a release:
+
+   ```powershell
+   npm.cmd run sbom:validate
+   Get-Content docs/RELEASE_SECURITY_ASSESSMENT.md
+   Get-Content docs/VULNERABILITY_REGISTER.md
+   Get-Content docs/INCIDENT_RESPONSE_RUNBOOK.md
+   Get-Content CHANGELOG.md
+   ```
+
+   Show that the SBOM is CycloneDX inventory rather than `package-lock.json`.
+   The release assessment must remain NO-GO until the listed blockers are
+   cleared by real evidence and the owner records approval. No Git tag is
+   created by these steps.
+
 ## Assessor handoff
 
 For each A1-H5 item, record the official wording, weight, exact command/run

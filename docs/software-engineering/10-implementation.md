@@ -57,6 +57,15 @@ with 20 successes and no HIGH/CRITICAL failure. Compose scanning remains
 blocked locally because Docker/KICS is unavailable; no remote CI run was
 triggered.
 
+## CR-003 implementation update
+
+CR-003 adds a release security assessment with a fail-closed GO/NO-GO decision,
+a real CycloneDX SBOM generator/validator, commit-history changelog,
+evidence-based vulnerability register, and incident-response runbook. The SBOM
+command generated CycloneDX 1.6 with 100 components and validation passed. It
+does not approve a release, rerun existing scanners, assign a PIC, create a
+finding, or create a Git tag.
+
 ## DevSecOps staging update
 
 Issue: user-requested DevSecOps audit, linked to REQ-003 / AC-003. `Jenkinsfile.security` is a Windows-only staging pipeline using `windows-security`, `bat`, full-history verification, locked installation, tests, and a Critical npm-audit gate. `.github/workflows/security.yml` provides a Linux full checkout plus pinned Semgrep 1.75.0, Gitleaks 8.21.2, and JSON npm-audit evidence. `audit-evidence/` is ignored. No production Jenkinsfile, credential, environment file, deployment, or external service was changed.
