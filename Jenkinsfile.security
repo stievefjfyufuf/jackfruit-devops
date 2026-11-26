@@ -1,0 +1,48 @@
+pipeline {
+  agent { label 'windows-security' }
+  options {
+    disableConcurrentBuilds()
+    timestamps()
+    timeout(time: 30, unit: 'MINUTES')
+    skipDefaultCheckout(true)
+  }
+  stages {
+    stage('Checkout Full History') {
+      steps {
+        checkout scm
+        bat '''@echo off
+          setlocal EnableExtensions
+          if not exist .git exit /b 2
+          for /f %%i in ('git rev-parse --is-shallow-repository') do set "SHALLOW=%%i"
+          if /I "%SHALLOW%"=="true" git fetch --unshallow
+          for /f %%i in ('git rev-parse --is-shallow-repository') do set "SHALLOW=%%i"
+          if /I not "%SHALLOW%"=="false" exit /b 2
+          git log -1 --format=%%H >NUL
+        '''
+      }
+    }
+    stage('Install') {
+      steps {
+        bat '''@echo off
+          for /f %%i in ('node --version') do set "NODE_VERSION=%%i"
+          echo %NODE_VERSION% | findstr /R "^v22[.]" >NUL
+          if errorlevel 1 exit /b 2
+        '''
+        bat 'npm ci'
+      }
+    }
+    stage('Test') {
+      steps { bat 'npm test' }
+    }
+    stage('SCA Critical Gate') {
+      steps {
+        // Existing script fails on invalid audit output or any Critical npm-audit vulnerability.
+        bat 'npm run security:sca'
+      }
+    }
+  }
+  post {
+    success { echo 'Staging tests and SCA completed. This pipeline has no build, deploy, Compose, or health-check stage.' }
+    failure { echo 'Security staging pipeline failed closed. Review console output; no deployment was attempted.' }
+  }
+}

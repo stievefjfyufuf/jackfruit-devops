@@ -118,6 +118,32 @@ test('malformed JSON, oversized bodies, missing routes and cross-origin writes',
   assert.equal(response.status, 200); assert.match(await response.text(), /Jack Fruit/);
   assert.match(response.headers.get('content-security-policy'), /frame-ancestors 'none'/);
 });
+test('security response headers protect API responses and do not disclose framework details', async () => {
+  const response = await fetch(`${base}/api/health`);
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('x-content-type-options'), 'nosniff');
+  assert.equal(response.headers.get('referrer-policy'), 'same-origin');
+  assert.equal(response.headers.get('cache-control'), 'no-store');
+  assert.equal(response.headers.get('x-powered-by'), null);
+  assert.match(response.headers.get('content-security-policy'), /default-src 'self'/);
+});
+test('API fails closed for unsupported verbs, abnormal input types, and query boundaries', async () => {
+  const product = await add();
+  let response = await fetch(`${base}/api/products/${product.id}`, { method: 'PATCH' });
+  assert.equal(response.status, 405);
+  assert.equal(response.headers.get('allow'), 'GET, HEAD, PUT, DELETE');
+  assert.deepEqual(await response.json(), { error: 'HTTP method not allowed.' });
+  response = await fetch(`${base}/api/health`, { method: 'POST' });
+  assert.equal(response.status, 405);
+  response = await fetch(`${base}/api/products`, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(sample()) });
+  assert.equal(response.status, 400);
+  for (const path of ['/api/transactions?limit=Infinity', '/api/transactions?limit=501', '/api/transactions?offset=-1', '/api/transactions?product_id=0', '/api/products?search=a&search=b']) {
+    assert.equal((await request(path)).status, 400, path);
+  }
+  const after = await request(`/api/products/${product.id}`);
+  assert.equal(after.status, 200);
+  assert.equal(after.data.quantity, 10);
+});
 test('database survives reopen and sample seeding happens only once', async () => {
   const path = join(dir, 'seed.sqlite');
   let seeded = openDatabase(path);
